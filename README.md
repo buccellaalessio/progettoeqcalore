@@ -19,7 +19,7 @@ Generazione della griglia del dominio tramite discretizzazione escludendo i bord
   Infine, l'esportazione in `coords.txt` avviene scorrendo tutti i nodi tramite ciclo for, mentre per `connectivity.txt` si utilizza un ciclo for sui nodi $u$ e uno interno sui relativi vicini $v$.
 ### PARTE 2 (ordinamento dei nodi) 
 ottenere una riordinazione dei nodi mediante l'algoritmo di nested dissection (avendo in input le coordinate del punto precedente) che ci restituisca una riga del tipo `n m`, dove il primo è l'indice della task1 mentre $m$ è l'indice intero appartenente a $[0, N^2 - 1]$ del nuovo riordinamento. 
-
+.
 ### PARTE 3 (generazione matrice sparsa e termine noto) 
 tramite C++ si vuole costruire la matrice $A$ del sistema della nostra equazione approssimata (sia con le coordinate iniziali che con quelle della precedente task). Si avrà quindi come output la matrice $A$ in formato `A.txt`. Inoltre si inglobano i valori di $u$ ai bordi come termine noto. Come input si usano le coordinate e l'ordinamento e l'espressione della funzione sorgente $f$, ottenendo il file dei vettori dei termini noti `rhs.txt`. 
 
