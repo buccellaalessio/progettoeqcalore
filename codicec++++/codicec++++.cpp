@@ -11,6 +11,10 @@ struct Node {
     double x, y;
 };
 
+
+double calcola_f(double x, double y) {
+    return exp(-10.0 * (x * x + y * y));
+}
 void nestedDissection(const vector<int>& subset, const vector<Node>& allNodes, bool cutVertical, vector<int>& newOrder) {
     if (subset.empty()) return;
     if (subset.size() == 1) {
@@ -123,6 +127,64 @@ int main() {
     cout << "- coords.txt" << endl;
     cout << "- connectivity.txt" << endl;
     cout << "- ordering.txt" << endl;
+    cout << "\n--- Generazione Sistema Lineare ---" << endl;
+    int scelta;
+    cout << "Scegli l'ordinamento (0 = Naturale, 1 = Nested Dissection): ";
+    cin >> scelta;
+
+   
+    vector<int> ordinamentoScelto(numNodes);
+    if (scelta == 1) {
+        ordinamentoScelto = orderedIndices;
+    }
+    else {
+       
+        for (int k = 0; k < numNodes; ++k) {
+            ordinamentoScelto[k] = k;
+        }
+    }
+
+    
+    vector<int> nuovoIndice(numNodes);
+    for (int m = 0; m < numNodes; ++m) {
+        int id_originale = ordinamentoScelto[m];
+        nuovoIndice[id_originale] = m;
+    }
+
+
+    double kappa = 0.01;
+    double coeff = kappa / (h * h);
+
+    ofstream fileA("A.txt");
+    ofstream fileRhs("rhs.txt");
+    fileA << fixed << setprecision(8);
+    fileRhs << fixed << setprecision(8);
+
+ 
+    for (int riga = 0; riga < numNodes; ++riga) {
+        int id_originale = ordinamentoScelto[riga];
+        Node current = nodes[id_originale];
+
+       
+        double rhs_val = -calcola_f(current.x, current.y);
+        fileRhs << rhs_val << "\n";
+
+  
+        fileA << riga << " " << riga << " " << -4.0 * coeff << "\n";
+
+       
+
+        for (int id_vicino : adjList[id_originale]) {
+            int colonna = nuovoIndice[id_vicino];
+            fileA << riga << " " << colonna << " " << 1.0 * coeff << "\n";
+        }
+    }
+
+    fileA.close();
+    fileRhs.close();
+
+    cout << "\nGenerazione completata con successo:" << endl;
+    cout << "- coords.txt\n- connectivity.txt\n- ordering.txt\n- A.txt\n- rhs.txt" << endl;
 
     return 0;
 }

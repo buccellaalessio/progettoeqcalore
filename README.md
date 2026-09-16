@@ -20,7 +20,7 @@ ottenere una riordinazione dei nodi mediante l'algoritmo di nested dissection (a
 * **IDEA DI BASE** Per svolgere la task mi serve innanzitutto definirmi degli insiei, che tratterò come vettori V1, V2 e Vs. Dovrò poi scegliere, o meglio calcolare, il punto medio da cui poi far partire la linea di taglio lungo le due direzioni, che dovrò poi connfrontare e con le coordinate di ogni nodo (per cui sceglierò di usare un ciclofor). Richiamerò poi l'algoritmo sui 3 insiemi, prima su V1 e V2 e poi su Vs ed infine scriverò i nuovi dati nella forma desiderata in un file.
 * **INPUT**:  Dati delle coordinate dei nodi del punto precedente.
 * **OUTPUT**: Partizione dei nodi ed un nuovo ordinamento a 2 colonne con un nuovo parametro progressivo $m$.
-* **Funzionalità Richieste**:
+* **Funzionalità Richieste** :
 * Scelta del punto medio lungo $x$ o $y$.
 * Divisione del grafo in $V_1$, $V_2$ (con cardinalità simili) e senza intersecarsi e isolamento di $V_s$ con bassa cardinalità.
 * Applicazione ricorsiva dell'algoritmo a $V_1$ e $V_2$ alternando $x$ e $y$.
@@ -35,7 +35,20 @@ Utilizzando poi `!cutVertical` riesco ad alternare la direzione del taglio tra l
 Alloco il vettore `initialSubset` (dimensione pari al numero dei nodi) in cui inserisco gli id dei nodi e richiamo l'algoritmo su tale vettore, inserendo i nuovi dati nel vettore `orderedIndices`.
 ### PARTE 3 (generazione matrice sparsa e termine noto) 
 tramite C++ si vuole costruire la matrice $A$ del sistema della nostra equazione approssimata (sia con le coordinate iniziali che con quelle della precedente task). Si avrà quindi come output la matrice $A$ in formato `A.txt`. Inoltre si inglobano i valori di $u$ ai bordi come termine noto. Come input si usano le coordinate e l'ordinamento e l'espressione della funzione sorgente $f$, ottenendo il file dei vettori dei termini noti `rhs.txt`. 
-
+* **INPUT**: Il passo della griglia $N$, i file `coords.txt`, l'ordinamento originale oppure quello tramite *nested dissection* `ordering.txt`, la costante $k = 0.01$ e $f = \exp(-10(x^2 + y^2))$.
+* **OUTPUT**: Matrice sparsa $A$ tramite il file `A.txt` in cui ogni riga è del tipo $i\ j\ A(i,j)$, entrate del vettore dei termini noti tramite il file `rhs.txt`, fattore di Cholesky.
+* **Funzionalità Richieste** :
+* Possibilità di scegliere quale dei due ordinamenti utilizzare.
+* Costruzione di una mappatura inversa per poter convertire in tempo reale l'identificatore originale del nodo nella nuova riga/colonna del sistema.
+* Calcolo del termine sulla diagonale principale pari a $-4k/h^2$ per ciascun nodo.
+* Calcolo dei contributi fuori diagonale pari a $1.0k/h^2$ sfruttando le connessioni orizzontali e verticali presenti nel grafo di adiacenza.
+* **Strutture Dati** : vettore `ordinamentoScelto` utilizzato per definire l'ordine sequenziale di scrittura delle righe del sistema lineare popolato in base alla scelta fatta tra ordinamento naturale e *nested dissection*. Vettore `nuovoIndice` struttura dati operante come mappa inversa. Oggetti `ofstream` impiegati per la generazione dei file `A.txt` e `rhs.txt`.
+* **Complessità** : $O(N^2)$, ogni riga contiene al massimo 5 elementi (il nodo ed i suoi vicini).
+* **Dipendenza da Altri Moduli** : Utilizza i dati di `coords.txt` e `ordering.txt` generati nelle prime due parti, genera poi i file necessari per quella successiva.
+* **Descrizione** :Per svolgere la task ho introdotto la funzione `cmath` per poter calcolare l'esponenziale della funzione $f(x,y)$, ho utilizzato `cin >> scelta` ed ho utilizzato la variabile `scelta` per poter usare entrambi gli ordinamenti, scorrendo il vettore `ordinamentoScelto` ho eseguito un ciclo `for` su `nuovoIndice` (che agisce da mappatura inversa) per associare all'id originale la nuova posizione $m$ del sistema. 
+Per costruire $A$ ho usato un ciclo `for` per calcolare gli elementi diagonali e non riga per riga. Tramite `int id_originale = ordinamentoScelto[riga]` identifico quale nodo fisico corrisponde alla riga corrente della matrice in base all'ordinamento attivo, uso `Node current = nodes[id_originale]` per estrarre le coordinate di quel nodo da `nodes` e calcolo il termine noto `rhs` usando `double`. 
+Rispettando la forma $i\ j\ A(i,j)$, ho scritto il contributo del nodo su se stesso direttamente in `A.txt`, stampando il termine con il valore associato $-4.0k/h^2$. 
+Infine ho usato `adjList[id_originale]`, per ogni nodo adiacente a `id_vicino`, ho interrogato la mappa inversa `nuovoIndice` per individuarne la nuova colonna ed ho così calcolato il termine extradiagonale, pari a $1.0k/h^2$.
 ### PARTE 4 (esportazione dati e risoluzione numerica del sistema) 
 si vuole risolvere il sistema su Python, per farlo si crea un codice che legga i file `A.txt` e `rhs.txt` e li converta in formato CSC. Inoltre tramite Cholesky si risolve il sistema lineare. 
 
