@@ -17,7 +17,7 @@ generazione della griglia del dominio tramite discretizzazione escludendo i bord
   Infine, l'esportazione in `coords.txt` avviene scorrendo tutti i nodi tramite ciclo for, mentre per `connectivity.txt` si utilizza un ciclo for sui nodi $u$ e uno interno sui relativi vicini $v$.
 ### PARTE 2 (ordinamento dei nodi) 
 ottenere una riordinazione dei nodi mediante l'algoritmo di nested dissection (avendo in input le coordinate del punto precedente) che ci restituisca una riga del tipo `n m`, dove il primo è l'indice della task1 mentre $m$ è l'indice intero appartenente a $[0, N^2 - 1]$ del nuovo riordinamento.  
-* **IDEA DI BASE** Per svolgere la task mi serve innanzitutto definirmi degli insiei, che tratterò come vettori V1, V2 e Vs. Dovrò poi scegliere, o meglio calcolare, il punto medio da cui poi far partire la linea di taglio lungo le due direzioni, che dovrò poi connfrontare e con le coordinate di ogni nodo (per cui sceglierò di usare un ciclofor). Richiamerò poi l'algoritmo sui 3 insiemi, prima su V1 e V2 e poi su Vs ed infine scriverò i nuovi dati nella forma desiderata in un file.
+* **IDEA DI BASE** Per svolgere la task mi serve innanzitutto definirmi degli insiemi, che tratterò come vettori V1, V2 e Vs. Dovrò poi scegliere, o meglio calcolare, il punto medio da cui poi far partire la linea di taglio lungo le due direzioni, che dovrò poi connfrontare e con le coordinate di ogni nodo (per cui sceglierò di usare un ciclofor). Richiamerò poi l'algoritmo sui 3 insiemi, prima su V1 e V2 e poi su Vs ed infine scriverò i nuovi dati nella forma desiderata in un file.
 * **INPUT**:  Dati delle coordinate dei nodi del punto precedente.
 * **OUTPUT**: Partizione dei nodi ed un nuovo ordinamento a 2 colonne con un nuovo parametro progressivo $m$.
 * **Funzionalità Richieste** :
@@ -35,6 +35,7 @@ Utilizzando poi `!cutVertical` riesco ad alternare la direzione del taglio tra l
 Alloco il vettore `initialSubset` (dimensione pari al numero dei nodi) in cui inserisco gli id dei nodi e richiamo l'algoritmo su tale vettore, inserendo i nuovi dati nel vettore `orderedIndices`.
 ### PARTE 3 (generazione matrice sparsa e termine noto) 
 tramite C++ si vuole costruire la matrice $A$ del sistema della nostra equazione approssimata (sia con le coordinate iniziali che con quelle della precedente task). Si avrà quindi come output la matrice $A$ in formato `A.txt`. Inoltre si inglobano i valori di $u$ ai bordi come termine noto. Come input si usano le coordinate e l'ordinamento e l'espressione della funzione sorgente $f$, ottenendo il file dei vettori dei termini noti `rhs.txt`. 
+* **IDEA DI BASE** : Per svolgere la task ho pensato di creare un vettore `nuovoIndice` che agisca da mappa inversa per poter convertire l'identificatore originale del nodo nella nuova riga/colonna del sistema. Tramite un ciclo `for` sul vettore `ordinamentoScelto`  per ogni nodo calcolo il termine sulla diagonale principale pari a $-4k/h^2$ e i contributi fuori diagonale pari a $1.0k/h^2$ sfruttando le connessioni orizzontali e verticali presenti nel grafo di adiacenza.
 * **INPUT**: Il passo della griglia $N$, i file `coords.txt`, l'ordinamento originale oppure quello tramite *nested dissection* `ordering.txt`, la costante $k = 0.01$ e $f = \exp(-10(x^2 + y^2))$.
 * **OUTPUT**: Matrice sparsa $A$ tramite il file `A.txt` in cui ogni riga è del tipo $i\ j\ A(i,j)$, entrate del vettore dei termini noti tramite il file `rhs.txt`, fattore di Cholesky.
 * **Funzionalità Richieste** :
@@ -51,6 +52,20 @@ Rispettando la forma $i\ j\ A(i,j)$, ho scritto il contributo del nodo su se ste
 Infine ho usato `adjList[id_originale]`, per ogni nodo adiacente a `id_vicino`, ho interrogato la mappa inversa `nuovoIndice` per individuarne la nuova colonna ed ho così calcolato il termine extradiagonale, pari a $1.0k/h^2$.
 ### PARTE 4 (esportazione dati e risoluzione numerica del sistema) 
 si vuole risolvere il sistema su Python, per farlo si crea un codice che legga i file `A.txt` e `rhs.txt` e li converta in formato CSC. Inoltre tramite Cholesky si risolve il sistema lineare. 
-
+* **IDEA DI BASE** : Utilizzo un percorso per leggere i file generati al punto precedente e utilizzo i codici e le librerie fornite per calcolare Cholesky. Una volta importati i file devo utilizzarli per costruire la matrice in formato CSC e utilizzo la scomposizione di Cholesky per risolvere il sistema in 2 passaggi usando L e la sua trasposta.
+* **INPUT**: `A.txt` e `rhs.txt`.
+* **OUTPUT**: Vettore delle temperature dei nodi interni ottenuto risolvendo il sistema.
+* **Funzionalità Richieste** :
+* Lettura dei dati e conversione nel formato CSC di SciPy.
+* Calcolo della fattorizzazione di Cholesky $-A = L L^T$.
+* Risoluzione del sistema lineare utilizzando `scipy.sparse.linalg.spsolve_triangular` svolgendo prima $L y = b$ e successivamente $L^T x = y$ (con $b$ termine noto).
+* **Strutture Dati** :Matrice in formato `csc_matrix` per una memorizzazione ottimizzata delle matrici e array NumPy (`np.ndarray`) per i dati dei file di testo.
+* **Complessità**: Varia in funzione della scelta dell'ordinamento ($1$ *nested* o $0$ naturale)
+* **Dipendenza da Altri Moduli** :Utilizza i dati di `A.txt` e `rhs.txt` ed è essenziale per lo svolgimento della successiva.
+* **Descrizione** : Data la difficoltà nel risolvere, utilizzando l'ordinamento naturale, il sistema per $N$ grandi, ho inserito un controllo (`if N >= 256`) che selezioni l'ordinamento *nested* nel caso in cui $N$ sia maggiore uguale di 256. 
+Il codice seleziona quali colonne e valori non nulli estrarre dalla matrice e la converte in CSC tramite `csc_matrix`. 
+Utilizzo poi il codice fornito, oltre alla libreria `sksparse.cholmod`, per calcolare il fattore di Cholesky (a cui ho aggiunto, confrontandomi con l'IA, delle modifiche che mi restituissero il fattore, dato che inizialmente dava una tupla come uscita). 
+Dato che $A$ è definita negativa, sono passato alla funzione $-A$. Sfrutto infine la libreria `scipy.sparse.linalg.spsolve_triangular` per risolvere il sistema in 2 passaggi come detto sopra: `y = spsolve_triangular(L, -rhs, lower=True)` e `x = spsolve_triangular(L.T, y, lower=False)`. 
+Ho inserito inoltre anche un controllo che mi restituisse $L$ e non la sua trasposta.
 ### PARTE 5 
 utilizzando il sistema risolto si vogliono ottenere i tempi ed il numero di entrate, in funzione dell'intero $N$, e confrontare i risultati tra quelli delle coordinate e dell'ordinamento scelto. Infine si vuole ottenere il plot della soluzione e le immagini della struttura della matrice $A$..
