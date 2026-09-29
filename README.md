@@ -58,13 +58,13 @@ si vuole risolvere il sistema su Python, per farlo si crea un codice che legga i
 * **Funzionalità Richieste** :
 * Lettura dei dati e conversione nel formato CSC di SciPy.
 * Calcolo della fattorizzazione di Cholesky $-A = L L^T$.
-* Risoluzione del sistema lineare utilizzando `scipy.sparse.linalg.spsolve_triangular` svolgendo prima $L y = b$ e successivamente $L^T x = y$ (con $b$ termine noto).
+* Risoluzione del sistema lineare utilizzando `scipy.sparse.linalg.spsolve_triangular` svolgendo prima $L y = -b$ e successivamente $L^T x = y$ (con $b$ termine noto).
 * **Strutture Dati** :Matrice in formato `csc_matrix` per una memorizzazione ottimizzata delle matrici e array NumPy (`np.ndarray`) per i dati dei file di testo.
 * **Complessità**: Varia in funzione della scelta dell'ordinamento ($1$ *nested* o $0$ naturale)
 * **Dipendenza da Altri Moduli** :Utilizza i dati di `A.txt` e `rhs.txt` ed è essenziale per lo svolgimento della successiva.
 * **Descrizione** : Data la difficoltà nel risolvere, utilizzando l'ordinamento naturale, il sistema per $N$ grandi, ho inserito un controllo (`if N >= 256`) che selezioni l'ordinamento *nested* nel caso in cui $N$ sia maggiore uguale di 256. 
 Il codice seleziona quali colonne e valori non nulli estrarre dalla matrice e la converte in CSC tramite `csc_matrix`. 
-Utilizzo poi il codice fornito, oltre alla libreria `sksparse.cholmod`, per calcolare il fattore di Cholesky (a cui ho aggiunto, confrontandomi con l'IA, delle modifiche che mi restituissero il fattore, dato che inizialmente dava una tupla come uscita). 
+Utilizzo poi il codice fornito, oltre alla libreria `sksparse.cholmod`, per calcolare il fattore di Cholesky (a cui ho aggiunto delle modifiche che mi restituissero il fattore, dato che inizialmente dava una tupla come uscita). 
 Dato che $A$ è definita negativa, sono passato alla funzione $-A$. Sfrutto infine la libreria `scipy.sparse.linalg.spsolve_triangular` per risolvere il sistema in 2 passaggi come detto sopra: `y = spsolve_triangular(L, -rhs, lower=True)` e `x = spsolve_triangular(L.T, y, lower=False)`. 
 Ho inserito inoltre anche un controllo che mi restituisse $L$ e non la sua trasposta.
 ### PARTE 5 
