@@ -1,4 +1,7 @@
+import matplotlib.pyplot as plt
 import numpy as np
+import time 
+
 from scipy.sparse import csc_matrix, tril
 from scipy.sparse.linalg import spsolve_triangular
 from sksparse.cholmod import cholesky
@@ -16,7 +19,7 @@ def my_cholesky(A):
 
 valori_N = [32, 64, 128, 256, 512, 1024]
 ordinamenti = ["0", "1"]
-
+risultati_profiling = []
 print("Avvio caricamento, fattorizzazione e risoluzione...")
 
 for N in valori_N:
