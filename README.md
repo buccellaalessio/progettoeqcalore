@@ -77,7 +77,7 @@ utilizzando il sistema risolto si vogliono ottenere i tempi ed il numero di entr
 * Misurare il tempo di fattorizzazione di Cholesky, della soluzione e quello totale.
 * Estrarre il fattore $NNZ$ di $L$ triangolare inferiore per valutare il *fill-in* e determinare quale ordinamento risulti più rapido e meno dispendioso.
 * **Strutture Dati** : Array per le soluzioni (`np.ndarray`). Matrici in formato `csc_matrix` sparse. Lista  `risultati_profiling` per memorizzare tutti i dati (tempi e *fill-in*).
-* **Complessità** : Dipende dall'ordinamento scelto ed è legata alla risoluzione del sistema sparso, a cui si aggiunge la complessità computazionale nella generazione e nel *plotting* delle figure.
+* **Complessità** : Dipende dall'ordinamento scelto ed è legata alla risoluzione del sistema sparso, a cui si aggiunge la complessità computazionale nella generazione e nel *plotting* delle figure, che ha un andamento lineare col numero dei nodi.
 * **Dipendenza da Altri Moduli** : Mantiene un'architettura coerente con la task precedente per la risoluzione del sistema, basandosi sull'utilizzo dei dati della matrice sparsa $A$ e del vettore dei termini noti $rhs$.
 * **Descrizione**:Ho eseguito e caricato il plot per un valore di $N$ ottimale (es. $N=32$ o $64$) per avere una corretta e leggibile visualizzazione della struttura delle matrici in entrambi gli ordinamenti tramite `plt.spy`. 
 Ho usato la funzione `time.perf_counter()` per la misurazione accurata dei tempi di esecuzione, calcolando i delta rispetto ai relativi punti di `start`. 
